@@ -9,10 +9,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class PeakMain extends ApplicationAdapter {
 //    SpriteBatch batch;
@@ -22,11 +24,15 @@ public class PeakMain extends ApplicationAdapter {
 
     private Stage stage;
 
+    private ArrayList<LetterSquare> letterSquares;
+
     @Override
     public void create() {
 //        batch = new SpriteBatch();
 
 //        Table table = new Table();
+
+        letterSquares = new ArrayList<LetterSquare>();
 
         stage = new Stage() {
             @Override
@@ -34,10 +40,30 @@ public class PeakMain extends ApplicationAdapter {
                 super.touchDragged(screenX, screenY, pointer);
                 Gdx.app.log("PeakMain/touchDragged", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
                 Vector2 stageCoord = screenToStageCoordinates(new Vector2(screenX, screenY));
-                Actor actor = hit(stageCoord.x, stageCoord.y, false);
-                if (actor != null) {
+                LetterSquare actor = (LetterSquare) hit(stageCoord.x, stageCoord.y, true);
+                if (actor != null && !letterSquares.contains(actor)) {
                     Gdx.app.log("Actor", "Actor hits");
+                    actor.setIsSelected(true);
+                    letterSquares.add(actor);
                 }
+                return false;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+//                return super.touchUp(screenX, screenY, pointer, button);
+
+                StringBuilder builder = new StringBuilder();
+
+                for (LetterSquare square : letterSquares) {
+                    square.setIsSelected(false);
+                    Gdx.app.log("Actor", "Actor unselected");
+                    builder.append(square.getText());
+                }
+
+                Gdx.app.log("touchUp", "Result: " + builder.toString());
+                letterSquares.clear();
+
                 return false;
             }
         };
@@ -66,8 +92,10 @@ public class PeakMain extends ApplicationAdapter {
         style.up = new TextureRegionDrawable(reg1);
         style.checked = new TextureRegionDrawable(reg2);
 
+        String[] letters = {"A", "B", "C", "D"};
+
         for (int i = 0; i < 4; i++) {
-            TextButton actor = new TextButton("A", style);
+            LetterSquare actor = new LetterSquare(letters[i], style);
 //            actor.setColor(colors[i]);
             actor.setHeight(actorSize);
             actor.setWidth(actorSize);
