@@ -14,29 +14,27 @@ public class PeakStage extends Stage {
 
     private final ArrayList<LetterSquare> letterSquares;
     private final OnDragListener listener;
-
-    public interface OnDragListener {
-        void onSelect(String word);
-
-        void onComplete(String word, boolean isWordValid);
-    }
+    private final StringBuilder builder;
 
     public PeakStage(OnDragListener listener) {
         super();
         this.listener = listener;
         this.letterSquares = new ArrayList<LetterSquare>();
+        this.builder = new StringBuilder();
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//        super.touchDown(screenX, screenY, pointer, button);
+        Gdx.app.log("PeakStage/touchDown", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
         // The user can use only one finger.
-        return pointer <= 0 && onTouch(screenX, screenY);
+        if (pointer > 0) return false;
+
+        builder.setLength(0);
+        return onTouch(screenX, screenY);
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-//        super.touchDragged(screenX, screenY, pointer);
         Gdx.app.log("PeakStage/touchDragged", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
 
         // The user can use only one finger.
@@ -45,14 +43,10 @@ public class PeakStage extends Stage {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-//        super.touchUp(screenX, screenY, pointer, button);
-
         if (letterSquares.isEmpty()) return false;
 
-        String word = generateWord(true);
+        String word = builder.toString();
         boolean isWordValid = word.compareTo("ABC") == 0;
-
-        Gdx.app.log("touchUp", "Result: " + word);
         for (LetterSquare square : letterSquares) {
             if (isWordValid)
                 square.onValidWordAction();
@@ -68,13 +62,13 @@ public class PeakStage extends Stage {
 
     private boolean onTouch(int screenX, int screenY) {
         Vector2 stageCoord = screenToStageCoordinates(new Vector2(screenX, screenY));
-        LetterSquare actor = (LetterSquare) hit(stageCoord.x, stageCoord.y, true);
-        if (actor != null && !letterSquares.contains(actor)) {
-            Gdx.app.log("Actor", "Actor hits");
-            actor.setSelected(true);
-            letterSquares.add(actor);
-
-            listener.onSelect(generateWord(false));
+        LetterSquare square = (LetterSquare) hit(stageCoord.x, stageCoord.y, true);
+        if (square != null && !letterSquares.contains(square)) {
+//            Gdx.app.log("Actor", "Actor hits");
+            square.setSelected();
+            letterSquares.add(square);
+            builder.append(square.getText());
+            listener.onSelect(builder.toString());
 
             return true;
         }
@@ -82,16 +76,11 @@ public class PeakStage extends Stage {
         return false;
     }
 
-    private String generateWord(boolean unselectLetters) {
-        StringBuilder builder = new StringBuilder();
+    /* Interface */
 
-        for (LetterSquare square : letterSquares) {
-            Gdx.app.log("Actor", "Actor unselected");
-            builder.append(square.getText());
-            if (unselectLetters)
-                square.setSelected(false);
-        }
+    public interface OnDragListener {
+        void onSelect(String word);
 
-        return builder.toString();
+        void onComplete(String word, boolean isWordValid);
     }
 }

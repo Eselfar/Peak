@@ -15,7 +15,6 @@ import com.badlogic.gdx.utils.Pool;
 public class LetterSquare extends TextButton {
 
     private final LetterSquareTextures textures;
-    private boolean isSelected = false;
 
     private final Pool<ChangeBGColorAction> pool;
 
@@ -33,13 +32,8 @@ public class LetterSquare extends TextButton {
         };
     }
 
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-        getStyle().up = isSelected ? textures.getTouchDraggedTRD() : textures.getNormalTRD();
-    }
-
-    public boolean isSelected() {
-        return isSelected;
+    public void setSelected() {
+        getStyle().up = textures.getTouchDraggedTRD();
     }
 
     public void onValidWordAction() {
