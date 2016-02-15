@@ -1,6 +1,5 @@
 package boulier.remi.peak;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
@@ -15,17 +14,20 @@ public class PeakStage extends Stage {
     private final ArrayList<LetterSquare> letterSquares;
     private final OnDragListener listener;
     private final StringBuilder builder;
+    private final ArrayList<String> dictionary;
 
-    public PeakStage(OnDragListener listener) {
+    public PeakStage(OnDragListener listener, ArrayList<String> dictionary) {
         super();
         this.listener = listener;
         this.letterSquares = new ArrayList<LetterSquare>();
         this.builder = new StringBuilder();
+        this.dictionary = dictionary != null ? dictionary : new ArrayList<String>();
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Gdx.app.log("PeakStage/touchDown", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
+//        Gdx.app.log("PeakStage/touchDown", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
+
         // The user can use only one finger.
         if (pointer > 0) return false;
 
@@ -35,7 +37,7 @@ public class PeakStage extends Stage {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        Gdx.app.log("PeakStage/touchDragged", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
+//        Gdx.app.log("PeakStage/touchDragged", "screenX: " + screenX + " | screenY: " + screenY + " | pointer: " + pointer);
 
         // The user can use only one finger.
         return pointer <= 0 && onTouch(screenX, screenY);
@@ -46,7 +48,8 @@ public class PeakStage extends Stage {
         if (letterSquares.isEmpty()) return false;
 
         String word = builder.toString();
-        boolean isWordValid = word.compareTo("ABC") == 0;
+        boolean isWordValid = dictionary.contains(word); //word.compareTo("ABC") == 0;
+
         for (LetterSquare square : letterSquares) {
             if (isWordValid)
                 square.onValidWordAction();

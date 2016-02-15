@@ -2,14 +2,15 @@ package boulier.remi.peak;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-
-import java.util.Random;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragListener {
 
@@ -21,18 +22,19 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
     public void create() {
         int actorSize = Gdx.graphics.getWidth() / 4;
 
-        stage = new PeakStage(this);
+        final JsonContent jsonContent = getJSONContent();
+
+        stage = new PeakStage(this, jsonContent.dictionary);
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
         table.setFillParent(true);
         table.bottom();
-//        table.setDebug(true);
+//        table.setDebug(true); // Uncomment the line to debug the table.
 
         stage.addActor(table);
 
         LetterSquareTextures textures = new LetterSquareTextures();
-        Random rand = new Random();
 
         /* Populate the table */
 
@@ -46,13 +48,36 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
         table.row();
 
         for (int i = 0; i < 4 * 4; i++) {
-            char res = (char) (rand.nextInt(26) + 'A');
-            LetterSquare actor = new LetterSquare(String.valueOf(res), textures);
-            table.add(actor).expandX().height(actorSize).fillX().pad(5);
+            LetterSquare actor = new LetterSquare(jsonContent.letters.get(i), textures);
+            table.add(actor).expandX().height(actorSize).fillX().pad(8);
             if ((i + 1) % 4 == 0) {
                 table.row();
             }
         }
+    }
+
+    private JsonContent getJSONContent() {
+        boolean isLocAvailable = Gdx.files.isLocalStorageAvailable();
+        Gdx.app.log("PeakMain/getJSONContent", "local storage available: " + isLocAvailable);
+
+        JsonContent jsonContent =new JsonContent();
+        if (isLocAvailable) {
+
+            FileHandle file = Gdx.files.internal("sample.json");
+            JsonValue content = new JsonReader().parse(file.readString());
+            JsonValue rootJson = content.get("data");
+
+            JsonValue gridJson = rootJson.get("grid");
+            for (JsonValue gridItem : gridJson) {
+                jsonContent.letters.add(gridItem.asString().toUpperCase());
+            }
+            JsonValue wordsJson = rootJson.get("words");
+            for (JsonValue wordJson : wordsJson) {
+                jsonContent.dictionary.add(wordJson.asString().toUpperCase());
+            }
+        }
+
+        return jsonContent;
     }
 
     @Override
@@ -76,14 +101,14 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
 
     @Override
     public void onSelect(String word) {
-        Gdx.app.log("PeakMain/onSelect", "word: " + word);
+//        Gdx.app.log("PeakMain/onSelect", "word: " + word);
         wordLabel.setText(word);
     }
 
     @Override
     public void onComplete(String word, boolean isWordValid) {
-        Gdx.app.log("PeakMain/onComplete", "word: " + word + " is valid: " + isWordValid);
-        if (!isWordValid){
+//        Gdx.app.log("PeakMain/onComplete", "word: " + word + " is valid: " + isWordValid);
+        if (!isWordValid) {
             wordLabel.setText("");
         }
     }
