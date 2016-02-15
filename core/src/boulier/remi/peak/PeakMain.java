@@ -4,59 +4,58 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+
+import java.util.Random;
 
 public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragListener {
-//    SpriteBatch batch;
-
-    private int FRAME_COLS = 5;
-    private int FRAME_ROWS = 3;
 
     private Stage stage;
+    private Table table;
 
     @Override
     public void create() {
-//        batch = new SpriteBatch();
-
-//        Table table = new Table();
+        int actorSize = Gdx.graphics.getWidth() / 4;
 
         stage = new PeakStage(this);
 
-        int actorSize = Gdx.graphics.getWidth() / 4;
+        Gdx.input.setInputProcessor(stage);
 
-        int xPos = 0;
+        table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
+        table.bottom();
+        table.setDebug(true);
 
         LetterSquareTextures textures = new LetterSquareTextures();
 
-        String[] letters = {"A", "B", "C", "D"};
 
-        for (int i = 0; i < 4; i++) {
-            LetterSquare actor = new LetterSquare(letters[i], textures);
-            actor.setHeight(actorSize);
-            actor.setWidth(actorSize);
-            actor.setPosition(xPos, 0);
+        Random rand = new Random();
+        for (int i = 0; i < 4 * 4; i++) {
+            char res = (char) (rand.nextInt(26) + 'A');
 
-            stage.addActor(actor);
-            xPos += actorSize;
+            LetterSquare actor = new LetterSquare(String.valueOf(res), textures);
+
+            table.add(actor).expandX().height(actorSize).fillX().pad(5);
+
+            if ((i + 1) % 4 == 0) {
+                table.row();
+            }
         }
-
-        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void render() {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        batch.begin();
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
 
-//        float squareWidth = camera.viewportWidth / squaresOnWidth;
-//        float squareHeight = camera.viewportHeight / squaresOnHeight;
-//        square.setWidth(squareWidth);
-//        square.setHeight(squareHeight);
-
-//        batch.end();
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

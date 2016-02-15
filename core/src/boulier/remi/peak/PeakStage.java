@@ -64,7 +64,6 @@ public class PeakStage extends Stage {
         Vector2 stageCoord = screenToStageCoordinates(new Vector2(screenX, screenY));
         LetterSquare square = (LetterSquare) hit(stageCoord.x, stageCoord.y, true);
         if (square != null && !letterSquares.contains(square)) {
-//            Gdx.app.log("Actor", "Actor hits");
             square.setSelected();
             letterSquares.add(square);
             builder.append(square.getText());

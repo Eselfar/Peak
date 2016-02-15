@@ -23,6 +23,7 @@ public class LetterSquare extends TextButton {
         this.textures = textures;
         getStyle().up = textures.getNormalTRD();
         getLabel().setTouchable(Touchable.disabled); // Disabled the touchability on the Label.
+        getLabel().setFontScale(2f);
 
         pool = new Pool<ChangeBGColorAction>() {
             @Override
