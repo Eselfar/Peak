@@ -2,8 +2,11 @@ package boulier.remi.peak;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import java.util.Random;
@@ -12,32 +15,40 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
 
     private Stage stage;
     private Table table;
+    private Label wordLabel;
 
     @Override
     public void create() {
         int actorSize = Gdx.graphics.getWidth() / 4;
 
         stage = new PeakStage(this);
-
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
         table.setFillParent(true);
-        stage.addActor(table);
         table.bottom();
-        table.setDebug(true);
+//        table.setDebug(true);
+
+        stage.addActor(table);
 
         LetterSquareTextures textures = new LetterSquareTextures();
-
-
         Random rand = new Random();
+
+        /* Populate the table */
+
+        wordLabel = new Label("", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        wordLabel.setFontScale(3f);
+
+        table.add(wordLabel)
+                .expandX()
+                .padBottom(50).padLeft(10).padRight(10)
+                .center().colspan(4);
+        table.row();
+
         for (int i = 0; i < 4 * 4; i++) {
             char res = (char) (rand.nextInt(26) + 'A');
-
             LetterSquare actor = new LetterSquare(String.valueOf(res), textures);
-
             table.add(actor).expandX().height(actorSize).fillX().pad(5);
-
             if ((i + 1) % 4 == 0) {
                 table.row();
             }
@@ -65,13 +76,15 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
 
     @Override
     public void onSelect(String word) {
-        // TODO: Display the word
         Gdx.app.log("PeakMain/onSelect", "word: " + word);
+        wordLabel.setText(word);
     }
 
     @Override
     public void onComplete(String word, boolean isWordValid) {
-        // TODO: Display the word
         Gdx.app.log("PeakMain/onComplete", "word: " + word + " is valid: " + isWordValid);
+        if (!isWordValid){
+            wordLabel.setText("");
+        }
     }
 }
