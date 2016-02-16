@@ -24,6 +24,10 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
 
         final JsonContent jsonContent = getJSONContent();
 
+        DictionaryGenerator generator = new DictionaryGenerator();
+        generator.generateDictionary(jsonContent.letters, 4, 4);
+
+
         stage = new PeakStage(this, jsonContent.dictionary);
         Gdx.input.setInputProcessor(stage);
 
