@@ -64,6 +64,7 @@ public class DictionaryGenerator {
                             map[x][y] = 1;
                             findNextLetter(x, y, gridRows, gridCols, grid, map, p.children, builder);
                             builder.setLength(builder.length() - 1);
+                            map[x][y] = 0;
                             break;
                         }
                     }
@@ -74,9 +75,10 @@ public class DictionaryGenerator {
 
     private char[][] initGrid(char[] letters, int rows, int cols) {
         char[][] grid = new char[rows][cols];
+        int index = 0;
         for (int r = 0; r < grid.length; r++) {
             for (int c = 0; c < grid[r].length; c++) {
-                grid[r][c] = letters[r + c];
+                grid[r][c] = letters[index++];
             }
         }
 
