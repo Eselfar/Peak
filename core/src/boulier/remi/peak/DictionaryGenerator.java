@@ -94,7 +94,7 @@ public class DictionaryGenerator {
     }
 
     private ArrayList<Prefix> generatePrefixes() {
-        FileHandle file = Gdx.files.internal("mydictionary.txt");
+        FileHandle file = Gdx.files.internal("words.txt");
         BufferedReader br = new BufferedReader(file.reader());
         ArrayList<Prefix> prefixes = new ArrayList<Prefix>();
 

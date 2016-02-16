@@ -47,8 +47,8 @@ public class PeakStage extends Stage {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (letterSquares.isEmpty()) return false;
 
-        String word = builder.toString();
-        boolean isWordValid = dictionary.contains(word); //word.compareTo("ABC") == 0;
+        String word = builder.toString().toLowerCase();
+        boolean isWordValid = dictionary.contains(word);
 
         for (LetterSquare square : letterSquares) {
             if (isWordValid)

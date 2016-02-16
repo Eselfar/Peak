@@ -2,15 +2,15 @@ package boulier.remi.peak;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragListener {
 
@@ -22,14 +22,16 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
     public void create() {
         int actorSize = Gdx.graphics.getWidth() / 4;
 
-        final JsonContent jsonContent = getJSONContent();
+        Random rand = new Random();
+        char[] letters = new char[4 * 4];
+        for (int i=0; i< 16; i++){
+            letters[i] = (char) (rand.nextInt(26) + 'a');
+        }
 
         DictionaryGenerator generator = new DictionaryGenerator();
-        char[] tempLetters = {'l', 'e', 'y', 'c', 'i', 'e', 'p', 'i', 'r', 't', 's', 'n', 'n', 'a', 'f', 'r'};
-        generator.generateDictionary(tempLetters, 4, 4);
+        ArrayList<String> dictionary = generator.generateDictionary(letters, 4, 4);
 
-
-        stage = new PeakStage(this, jsonContent.dictionary);
+        stage = new PeakStage(this, dictionary);
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
@@ -53,36 +55,12 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
         table.row();
 
         for (int i = 0; i < 4 * 4; i++) {
-            LetterSquare actor = new LetterSquare(jsonContent.letters.get(i), textures);
+            LetterSquare actor = new LetterSquare(String.valueOf(letters[i]).toUpperCase(), textures);
             table.add(actor).expandX().height(actorSize).fillX().pad(8);
             if ((i + 1) % 4 == 0) {
                 table.row();
             }
         }
-    }
-
-    private JsonContent getJSONContent() {
-        boolean isLocAvailable = Gdx.files.isLocalStorageAvailable();
-        Gdx.app.log("PeakMain/getJSONContent", "local storage available: " + isLocAvailable);
-
-        JsonContent jsonContent = new JsonContent();
-        if (isLocAvailable) {
-
-            FileHandle file = Gdx.files.internal("sample.json");
-            JsonValue content = new JsonReader().parse(file.readString());
-            JsonValue rootJson = content.get("data");
-
-            JsonValue gridJson = rootJson.get("grid");
-            for (JsonValue gridItem : gridJson) {
-                jsonContent.letters.add(gridItem.asString().toUpperCase());
-            }
-            JsonValue wordsJson = rootJson.get("words");
-            for (JsonValue wordJson : wordsJson) {
-                jsonContent.dictionary.add(wordJson.asString().toUpperCase());
-            }
-        }
-
-        return jsonContent;
     }
 
     @Override
