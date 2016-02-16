@@ -13,18 +13,82 @@ import java.util.ArrayList;
  */
 public class DictionaryGenerator {
 
+    private final ArrayList<String> dictionary = new ArrayList<String>();
 
     public DictionaryGenerator() {
     }
 
-    public ArrayList<String> generateDictionary(ArrayList<String> letters, int gridRows, int gridCols) {
+    public ArrayList<String> generateDictionary(char[] letters, int gridRows, int gridCols) {
         Gdx.app.log("DictionaryGenerator", "Start generate");
-        final ArrayList<String> dictionary = new ArrayList<String>();
+        dictionary.clear();
 
         ArrayList<Prefix> prefixes = generatePrefixes();
+        Gdx.app.log("DictionaryGenerator", "Prefixes generated");
+
+        processTheGrid(prefixes, letters, gridRows, gridCols);
 
         Gdx.app.log("DictionaryGenerator", "Done");
         return dictionary;
+    }
+
+    private void processTheGrid(ArrayList<Prefix> prefixes, char[] letters, int gridRows, int gridCols) {
+        char[][] grid = initGrid(letters, gridRows, gridCols);
+        final int[][] map = new int[gridRows][gridCols];
+
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[r].length; c++) {
+                map[r][c] = 1;
+                for (Prefix p : prefixes) {
+                    if (p.c == grid[r][c]) {
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(p.c);
+                        findNextLetter(r, c, gridRows, gridCols, grid, map, p.children, builder);
+                        break;
+                    }
+                }
+                resetMap(map);
+            }
+        }
+    }
+
+    private void findNextLetter(int curRow, int curCol, int gridRows, int gridCols, char[][] grid, int[][] map, ArrayList<Prefix> currPrefixes, StringBuilder builder) {
+        for (int x = curRow - 1; x <= curRow + 1; x++) {
+            for (int y = curCol - 1; y <= curCol + 1; y++) {
+                if (x >= 0 && x < gridRows && y >= 0 && y < gridCols && map[x][y] != 1) {
+                    for (Prefix p : currPrefixes) {
+                        if (p.c == grid[x][y]) {
+                            builder.append(p.c);
+                            if (p.isWord) {
+                                dictionary.add(builder.toString());
+                            }
+                            map[x][y] = 1;
+                            findNextLetter(x, y, gridRows, gridCols, grid, map, p.children, builder);
+                            builder.setLength(builder.length() - 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private char[][] initGrid(char[] letters, int rows, int cols) {
+        char[][] grid = new char[rows][cols];
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[r].length; c++) {
+                grid[r][c] = letters[r + c];
+            }
+        }
+
+        return grid;
+    }
+
+    private void resetMap(int[][] map) {
+        for (int r = 0; r < map.length; r++) {
+            for (int c = 0; c < map[r].length; c++) {
+                map[r][c] = 0;
+            }
+        }
     }
 
     private ArrayList<Prefix> generatePrefixes() {
@@ -55,7 +119,7 @@ public class DictionaryGenerator {
             if (i == 0) {
                 // Test if this prefix is not already in the list of prefixes.
                 for (Prefix p : prefixes) {
-                    if(p.c == c) {
+                    if (p.c == c) {
                         prefix = p;
                         break;
                     }
@@ -85,7 +149,7 @@ public class DictionaryGenerator {
             Prefix child = hasForChild(c);
             if (child != null) {
                 if (isWord && !child.isWord)
-                    child.isWord = isWord;
+                    child.isWord = true;
             } else {
                 child = new Prefix(c, isWord);
                 children.add(child);

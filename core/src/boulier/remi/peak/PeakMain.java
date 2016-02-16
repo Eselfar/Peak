@@ -25,7 +25,8 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
         final JsonContent jsonContent = getJSONContent();
 
         DictionaryGenerator generator = new DictionaryGenerator();
-        generator.generateDictionary(jsonContent.letters, 4, 4);
+        char[] tempLetters = {'l', 'e', 'y', 'c', 'i', 'e', 'p', 'i', 'r', 't', 's', 'n', 'n', 'a', 'f', 'r'};
+        generator.generateDictionary(tempLetters, 4, 4);
 
 
         stage = new PeakStage(this, jsonContent.dictionary);
@@ -64,7 +65,7 @@ public class PeakMain extends ApplicationAdapter implements PeakStage.OnDragList
         boolean isLocAvailable = Gdx.files.isLocalStorageAvailable();
         Gdx.app.log("PeakMain/getJSONContent", "local storage available: " + isLocAvailable);
 
-        JsonContent jsonContent =new JsonContent();
+        JsonContent jsonContent = new JsonContent();
         if (isLocAvailable) {
 
             FileHandle file = Gdx.files.internal("sample.json");
